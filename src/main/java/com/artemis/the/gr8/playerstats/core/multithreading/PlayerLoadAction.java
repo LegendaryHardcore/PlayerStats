@@ -70,12 +70,25 @@ final class PlayerLoadAction extends RecursiveAction {
 
         for (int i = start; i < end; i++) {
             OfflinePlayer player = players[i];
-            String playerName = player.getName();
-            MyLogger.actionRunning(Thread.currentThread().getName());
-            if (playerName != null &&
-                    !offlinePlayerHandler.isExcludedPlayer(player.getUniqueId()) &&
-                    UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
-                offlinePlayerUUIDs.put(playerName, player.getUniqueId());
+            try {
+                String playerName = player.getName();
+                MyLogger.actionRunning(Thread.currentThread().getName());
+                if (playerName != null &&
+                        !offlinePlayerHandler.isExcludedPlayer(player.getUniqueId()) &&
+                        UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
+                    offlinePlayerUUIDs.put(playerName, player.getUniqueId());
+                }
+            } catch (Exception e) {
+                String playerName;
+                try {
+                    playerName = player.getName();
+                    if (playerName == null) {
+                        playerName = "NULL";
+                    }
+                } catch (Exception e2) {
+                    playerName = "ERROR";
+                }
+                MyLogger.logWarning("Failed to load offline user " + playerName + " (" + player.getUniqueId() + "): " + e.getMessage());
             }
         }
     }
